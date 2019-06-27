@@ -1,0 +1,238 @@
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+public class test {
+	public static void main(String[] args) {
+		new JF();
+	}
+
+}
+class JF extends JFrame implements ActionListener{	
+	JFileChooser jfc=new JFileChooser();
+	File f=jfc.getSelectedFile();//f为选择到的文件
+	List<student> studentList;
+	JButton b1=new JButton("打开文件");
+	JButton b2=new JButton("排序");
+	JButton b3=new JButton("保存");
+	JButton b4=new JButton("添加");
+	JButton b5=new JButton("查找");
+	JButton b6=new JButton("修改");
+	JButton b7=new JButton("删除");
+	JTextField JF1=new JTextField(10);	
+	JTextField JF2=new JTextField(10);
+	JTextField JF3=new JTextField(10);
+	JTextArea TA1=new JTextArea(20, 30);
+	JLabel l1=new JLabel("     学号                 ",JLabel.CENTER);
+	JLabel l2=new JLabel("     姓名                 ",JLabel.CENTER);
+	JLabel l3=new JLabel("     分数                 ",JLabel.CENTER);
+	JLabel l4=new JLabel("                                                                  ");
+	JLabel l5=new JLabel("                                                                  ");
+	JF(){
+		setTitle("文件操作");
+		this.setLayout(new BorderLayout());
+		JPanel p1=new JPanel();
+		JPanel p2=new JPanel();
+		JPanel p3=new JPanel();
+		JPanel p4=new JPanel();
+		b4.setPreferredSize(new Dimension(120,30));
+		b5.setPreferredSize(new Dimension(120,30));
+		b6.setPreferredSize(new Dimension(120,30));
+		b7.setPreferredSize(new Dimension(120,30));
+		p1.add(b1);
+		p1.add(b2);
+		p1.add(b3);
+		p2.add(TA1);
+		p3.add(l4);p3.add(l5);
+		p3.add(l1);
+		p3.add(JF1);
+		p3.add(l2);
+		p3.add(JF2);
+		p3.add(l3);
+		p3.add(JF3);
+		p3.add(b4);
+		p3.add(b5);
+		p3.add(b6);
+		p3.add(b7);
+		add(p1,BorderLayout.NORTH);
+		add(p2,BorderLayout.WEST);
+		add(p3,BorderLayout.CENTER);
+		b1.addActionListener(this);
+		b2.addActionListener(this);
+		b3.addActionListener(this);
+		b4.addActionListener(this);
+		b5.addActionListener(this);
+		b6.addActionListener(this);
+		b7.addActionListener(this);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setSize(600,450);
+		this.setVisible(true);
+	}
+	public void actionPerformed(ActionEvent e){
+		try{
+			
+			if(e.getSource()==b1){ //打开文件
+				jfc.setFileSelectionMode(0);//设定只能选择到文件
+	            int state=jfc.showOpenDialog(this);//此句是打开文件选择器界面的触发语句
+	            TA1.setText("");
+	            if(state==1){
+	                return;//撤销则返回
+	            }
+	            else{
+	                f=jfc.getSelectedFile();//f为选择到的文件
+	                String str=f.getAbsolutePath();
+	                FileReader fr=new FileReader(str);
+					BufferedReader br=new BufferedReader(fr);
+					studentList=new ArrayList<student>();
+				     while(true){
+				    	String s=br.readLine();
+				    	if(s==null){
+				    		break;
+				    	}
+				    	else{
+				    		String[]ss=s.split(" ");
+				    		studentList.add(new student(ss[0],ss[1],Integer.parseInt(ss[2])));
+				    		TA1.append(s+"\r\n");
+				    	}
+				     }
+				     br.close();
+				}
+			}
+			if(e.getSource()==b2){  //排序
+				Collections.sort(studentList);
+				TA1.setText("");
+				for(student student:studentList){
+					TA1.append(student.no+" "+student.name+" "+student.grade+"\r\n");
+				}
+			}
+			if(e.getSource()==b3){  //保存
+				f=jfc.getSelectedFile();//f为选择到的文件
+                String str=f.getAbsolutePath();
+				FileWriter fw=new FileWriter(str);
+				String s=TA1.getText();
+				fw.write(s+"\r\n");
+				fw.close();
+				JOptionPane.showMessageDialog(this,"保存成功");
+	            
+				
+			}
+			if(e.getSource()==b4){  //添加
+	            String no=JF1.getText();
+	            String name=JF2.getText();
+	            String grade=JF3.getText();
+	            for(int i=0;i<studentList.size();i++){
+					student student=studentList.get(i);
+					if(student.gno().equals(no)){
+						JOptionPane.showMessageDialog(this,"已存在");
+						break;
+					}
+					else{
+						studentList.add(new student(no,name,Integer.parseInt(grade)));
+						TA1.append(studentList.get(studentList.size()-1)+"\r\n");
+						break;
+					}
+				}
+	           
+			}
+			if(e.getSource()==b5){  //查找
+	            String no=JF1.getText();
+	            boolean flag=false;
+	            for(student student:studentList){
+	            	if(student.gno().equals(no)){
+	            		flag=true;
+	            		JF2.setText(student.gname());
+	            		JF3.setText(student.ggrade()+"");
+	            		break;
+	            	}
+	            }
+	            if(!flag){
+	            	JOptionPane.showMessageDialog(this,"无该学生");
+	            }
+			}
+			if(e.getSource()==b6){  //修改
+	            String no=JF1.getText();
+	            for(student student:studentList){
+	            	if(student.gno().equals(no)){
+	            		student.sname(JF2.getText());
+	            		student.sgrade(Integer.parseInt(JF3.getText()));
+	            		break;
+	            	}
+	            }
+	            TA1.setText("");
+	            for(student student:studentList){
+	            	TA1.append(student.toString()+"\r\n");
+	            }
+	            
+			}
+			if(e.getSource()==b7){  //删除
+				String no=JF1.getText();
+				for(int i=0;i<studentList.size();i++){
+					student student=studentList.get(i);
+					if(student.gno().equals(no)){
+						studentList.remove(i);
+						break;
+					}
+				}
+				TA1.setText("");
+				for(student student:studentList){
+	            	TA1.append(student.toString()+"\r\n");
+	            }
+	            
+			}
+		}catch(Exception e1){
+			
+		}
+	}
+}
+class student implements Comparable<student>{
+	public String no;
+	public String name;
+	public int grade;
+	public student(String no,String name,int grade){
+		this.no=no;
+		this.name=name;
+		this.grade=grade;
+	}
+	public String gno(){
+		return no;
+	}
+	public void sno(String no){
+		this.no=no;
+	}
+	public String gname(){
+		return name;
+	}
+	public void sname(String name){
+		this.name=name;
+	}
+	public int ggrade(){
+		return grade;
+	}
+	public void sgrade(int grade){
+		this.grade=grade;
+	}
+	public int compareTo(student o1){
+		return this.ggrade()-o1.ggrade();
+	}//总分升序
+	public String toString(){
+		return this.no+" "+this.gname()+" "+this.ggrade();
+	}
+	
+}//学生类
